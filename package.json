@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "build": "nodemon run app.js",
     "start": "nodemon ./build/app.js"
   },
   "engines": {
