@@ -193,4 +193,36 @@ router.get("/wishlistedCar", auth_1.authentication, (req, res) => __awaiter(void
         res.status(403).json({ message: "User not found" });
     }
 }));
+//REMOVE IT FROM WISHLIST
+router.delete("/wishlistedCar/:id", auth_1.authentication, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const wishCar = yield db_config_1.default.wishlistedCar.findUnique({
+        where: { id: parseInt(req.params.id) },
+    });
+    console.log(wishCar);
+    if (wishCar) {
+        const user = yield db_config_1.default.user.findUnique({
+            where: { email: req.user.email },
+            include: {
+                onWishlist: true,
+            },
+        });
+        if (user) {
+            const wishCarId = wishCar.id;
+            yield db_config_1.default.wishlistedCar.delete({
+                where: {
+                    id: wishCarId,
+                },
+            });
+            res.json({
+                message: "Car removed from wishlist",
+            });
+        }
+        else {
+            res.status(403).json({ message: "User Not found" });
+        }
+    }
+    else {
+        res.status(404).json({ message: "Car Not Found" });
+    }
+}));
 exports.default = router;

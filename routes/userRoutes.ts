@@ -197,4 +197,36 @@ router.get("/wishlistedCar", authentication, async (req, res) => {
   }
 });
 
+//REMOVE IT FROM WISHLIST
+
+router.delete("/wishlistedCar/:id", authentication, async (req, res) => {
+  const wishCar = await prisma.wishlistedCar.findUnique({
+    where: { id: parseInt(req.params.id) },
+  });
+  console.log(wishCar);
+  if (wishCar) {
+    const user = await prisma.user.findUnique({
+      where: { email: req.user.email },
+      include: {
+        onWishlist: true,
+      },
+    });
+    if (user) {
+      const wishCarId = wishCar.id;
+      await prisma.wishlistedCar.delete({
+        where: {
+          id: wishCarId,
+        },
+      });
+      res.json({
+        message: "Car removed from wishlist",
+      });
+    } else {
+      res.status(403).json({ message: "User Not found" });
+    }
+  } else {
+    res.status(404).json({ message: "Car Not Found" });
+  }
+});
+
 export default router;
