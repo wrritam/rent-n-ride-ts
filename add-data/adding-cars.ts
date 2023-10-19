@@ -74,6 +74,10 @@ async function main() {
         id: 17,
       },
       {
+        brand: "Tesla",
+        id: 18,
+      },
+      {
         brand: "Ferrari",
         id: 19,
       },
