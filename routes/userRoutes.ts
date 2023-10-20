@@ -72,9 +72,9 @@ router.post("/forgotPassword", async (req, res) => {
     };
 
     const token = jwt.sign(payload, secret, { expiresIn: "15m" });
-    const link = `https://localhost:3000/user/resetPassword/${user.id}/${token}`;
+    const content = `${user.id}/${token}`;
     //sendMail(email, "Reset Password", link);
-    res.send(sendMail(email, "Reset Password", link));
+    res.send(sendMail(email, "Reset Password", content));
     //res.status(200).json({ message: "reset link sent" });
   } else {
     res.status(402).json({ message: "User doesnt reside in our database" });

@@ -72,9 +72,9 @@ router.post("/forgotPassword", (req, res) => __awaiter(void 0, void 0, void 0, f
             id: user.id,
         };
         const token = jsonwebtoken_1.default.sign(payload, secret, { expiresIn: "15m" });
-        const link = `https://localhost:3000/user/resetPassword/${user.id}/${token}`;
+        const content = `${user.id}/${token}`;
         //sendMail(email, "Reset Password", link);
-        res.send((0, sendMail_1.sendMail)(email, "Reset Password", link));
+        res.send((0, sendMail_1.sendMail)(email, "Reset Password", content));
         //res.status(200).json({ message: "reset link sent" });
     }
     else {
