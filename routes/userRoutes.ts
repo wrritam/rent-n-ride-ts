@@ -1,7 +1,7 @@
 import express from "express";
 const router = express.Router();
 import jwt from "jsonwebtoken";
-
+import { sendMail } from "../helper/sendMail";
 import { authentication } from "../middlewares/auth";
 
 import prisma from "../DB/db.config";
@@ -53,6 +53,64 @@ router.post("/login", async (req, res) => {
     res.json({ message: "Logged in successfully", token });
   } else {
     res.status(403).json({ message: "Invalid email or password" });
+  }
+});
+
+router.post("/forgotPassword", async (req, res) => {
+  const { email } = req.body;
+  const user = await prisma.user.findUnique({
+    where: {
+      email: email,
+    },
+  });
+  if (user) {
+    const secret = process.env.hiddenKey + user.password;
+
+    const payload = {
+      email: user.email,
+      id: user.id,
+    };
+
+    const token = jwt.sign(payload, secret, { expiresIn: "15m" });
+    const link = `http://localhost:3000/user/resetPassword/${user.id}/${token}`;
+    //sendMail(email, "Reset Password", link);
+    res.send(sendMail(email, "Reset Password", link));
+    //res.status(200).json({ message: "reset link sent" });
+  } else {
+    res.status(402).json({ message: "User doesnt reside in our database" });
+  }
+});
+
+router.post("/resetPassword/:id/:token", async (req, res) => {
+  const { id, token } = req.params;
+  const { password, confirmPassword } = req.body;
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: parseInt(id),
+    },
+  });
+
+  if (user) {
+    const secret = process.env.hiddenKey + user.password;
+    try {
+      const payload = jwt.verify(token, secret);
+      if (password === confirmPassword) {
+        await prisma.user.update({
+          where: {
+            id: parseInt(id),
+          },
+          data: {
+            password: password,
+          },
+        });
+        res.send("password updated successfully");
+      } else {
+        res.send("passwords do not match");
+      }
+    } catch (error) {
+      res.status(404).json(error);
+    }
   }
 });
 

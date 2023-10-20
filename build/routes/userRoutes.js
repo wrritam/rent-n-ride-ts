@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const sendMail_1 = require("../helper/sendMail");
 const auth_1 = require("../middlewares/auth");
 const db_config_1 = __importDefault(require("../DB/db.config"));
 //USER SIGNUP
@@ -55,6 +56,61 @@ router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
     else {
         res.status(403).json({ message: "Invalid email or password" });
+    }
+}));
+router.post("/forgotPassword", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email } = req.body;
+    const user = yield db_config_1.default.user.findUnique({
+        where: {
+            email: email,
+        },
+    });
+    if (user) {
+        const secret = process.env.hiddenKey + user.password;
+        const payload = {
+            email: user.email,
+            id: user.id,
+        };
+        const token = jsonwebtoken_1.default.sign(payload, secret, { expiresIn: "15m" });
+        const link = `https://localhost:3000/user/resetPassword/${user.id}/${token}`;
+        //sendMail(email, "Reset Password", link);
+        res.send((0, sendMail_1.sendMail)(email, "Reset Password", link));
+        //res.status(200).json({ message: "reset link sent" });
+    }
+    else {
+        res.status(402).json({ message: "User doesnt reside in our database" });
+    }
+}));
+router.post("/resetPassword/:id/:token", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id, token } = req.params;
+    const { password, confirmPassword } = req.body;
+    const user = yield db_config_1.default.user.findUnique({
+        where: {
+            id: parseInt(id),
+        },
+    });
+    if (user) {
+        const secret = process.env.hiddenKey + user.password;
+        try {
+            const payload = jsonwebtoken_1.default.verify(token, secret);
+            if (password === confirmPassword) {
+                yield db_config_1.default.user.update({
+                    where: {
+                        id: parseInt(id),
+                    },
+                    data: {
+                        password: password,
+                    },
+                });
+                res.send("password updated successfully");
+            }
+            else {
+                res.send("passwords do not match");
+            }
+        }
+        catch (error) {
+            res.status(404).json(error);
+        }
     }
 }));
 //GET ALL MODELS

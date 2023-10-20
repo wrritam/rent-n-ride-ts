@@ -73,17 +73,6 @@ router.get("/inventory/:id", auth_1.authentication, (req, res) => __awaiter(void
 }));
 // ADMIN ADD CARS
 router.post("/inventory/addCar", auth_1.authentication, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    //   const {
-    //     carId,
-    //     name,
-    //     transmission,
-    //     fuelType,
-    //     seatNumbers,
-    //     condition,
-    //     price,
-    //     rentPrice,
-    //     published,
-    //   } = req.body;
     const admin = yield db_config_1.default.admin.findUnique({
         where: { adminMail: req.user.email },
     });
