@@ -72,7 +72,7 @@ router.post("/forgotPassword", async (req, res) => {
     };
 
     const token = jwt.sign(payload, secret, { expiresIn: "15m" });
-    const link = `http://localhost:3000/user/resetPassword/${user.id}/${token}`;
+    const link = `https://rent-n-ride-ts-production.up.railway.app/user/resetPassword/${user.id}/${token}`;
     //sendMail(email, "Reset Password", link);
     res.send(sendMail(email, "Reset Password", link));
     //res.status(200).json({ message: "reset link sent" });
