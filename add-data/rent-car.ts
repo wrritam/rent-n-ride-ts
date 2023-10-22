@@ -9,7 +9,7 @@ async function main() {
       rentedtoId: 1,
       startDate: "7th Oct, 2023",
       endDate: "15th Oct, 2023",
-      status: "available",
+      status: true,
     },
   });
 }
