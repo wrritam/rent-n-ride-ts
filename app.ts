@@ -13,10 +13,10 @@ app.use(cors());
 
 app.use(express.json());
 
-app.get("/", (req, res) => res.send("this is home page!"));
+app.get("/api", (req, res) => res.send("this is home page!"));
 
-app.use("/user", userRoutes);
+app.use("/api/user", userRoutes);
 
-app.use("/admin", adminRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.listen(port, () => console.log(`app listening on port ${port}!`));
