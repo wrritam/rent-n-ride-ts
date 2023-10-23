@@ -8,7 +8,7 @@ require("dotenv/config");
 const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
 const adminRoutes_1 = __importDefault(require("./routes/adminRoutes"));
 const app = (0, express_1.default)();
-const port = 4000;
+const port = process.env.PORT || 4000;
 var cors = require("cors");
 app.use(cors());
 app.use(express_1.default.json());
