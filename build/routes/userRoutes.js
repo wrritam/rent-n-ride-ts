@@ -18,6 +18,7 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const sendMail_1 = require("../helper/sendMail");
 const auth_1 = require("../middlewares/auth");
 const db_config_1 = __importDefault(require("../DB/db.config"));
+const rtg = require("random-token-generator");
 //USER SIGNUP
 router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { name, email, password } = req.body;
@@ -67,12 +68,18 @@ router.post("/forgotPassword", (req, res) => __awaiter(void 0, void 0, void 0, f
         },
     });
     if (user) {
-        const secret = process.env.hiddenKey + user.password;
+        const rtgKey = rtg.generateKey({
+            len: 8,
+            string: true,
+            strong: false,
+            retry: false,
+        });
+        const secretKey = process.env.hiddenKey + rtgKey;
         const payload = {
             email: user.email,
             id: user.id,
         };
-        const token = jsonwebtoken_1.default.sign(payload, secret, { expiresIn: "15m" });
+        const token = jsonwebtoken_1.default.sign(payload, secretKey, { expiresIn: "15m" });
         const link = `https://rent-ride-three.vercel.app/user/reset-password/${user.id}/${token}`;
         //sendMail(email, "Reset Password", link);
         res.send((0, sendMail_1.sendMail)(email, "Reset Password", link));

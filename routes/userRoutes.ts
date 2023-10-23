@@ -3,8 +3,9 @@ const router = express.Router();
 import jwt from "jsonwebtoken";
 import { sendMail } from "../helper/sendMail";
 import { authentication } from "../middlewares/auth";
-
 import prisma from "../DB/db.config";
+
+const rtg = require("random-token-generator");
 
 //USER SIGNUP
 
@@ -65,14 +66,21 @@ router.post("/forgotPassword", async (req, res) => {
     },
   });
   if (user) {
-    const secret = process.env.hiddenKey + user.password;
+    const rtgKey = rtg.generateKey({
+      len: 8,
+      string: true,
+      strong: false,
+      retry: false,
+    });
+
+    const secretKey = process.env.hiddenKey + rtgKey;
 
     const payload = {
       email: user.email,
       id: user.id,
     };
 
-    const token = jwt.sign(payload, secret, { expiresIn: "15m" });
+    const token = jwt.sign(payload, secretKey, { expiresIn: "15m" });
     const link = `https://rent-ride-three.vercel.app/user/reset-password/${user.id}/${token}`;
     //sendMail(email, "Reset Password", link);
     res.send(sendMail(email, "Reset Password", link));
