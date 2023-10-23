@@ -73,14 +73,9 @@ router.post("/forgotPassword", async (req, res) => {
       retry: false,
     });
 
-    const secretKey = process.env.hiddenKey + rtgKey;
+    const secretKey = rtgKey;
 
-    const payload = {
-      email: user.email,
-      id: user.id,
-    };
-
-    const token = jwt.sign(payload, secretKey, { expiresIn: "15m" });
+    const token = jwt.sign(email, secretKey, { expiresIn: "15m" });
     const link = `https://rent-ride-three.vercel.app/user/reset-password/${user.id}/${token}`;
     //sendMail(email, "Reset Password", link);
     res.send(sendMail(email, "Reset Password", link));
