@@ -33,7 +33,7 @@ router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function*
                 password: password,
             },
         });
-        const token = jsonwebtoken_1.default.sign({ email, role: "user" }, process.env.hiddenKey, {
+        const token = jsonwebtoken_1.default.sign({ email, role: "user", name }, process.env.hiddenKey, {
             expiresIn: "1h",
         });
         res.json({ message: "User created successfully", token });
@@ -49,7 +49,8 @@ router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         },
     });
     if (user) {
-        const token = jsonwebtoken_1.default.sign({ email, role: "user" }, process.env.hiddenKey, {
+        const name = user.name;
+        const token = jsonwebtoken_1.default.sign({ email, role: "user", name }, process.env.hiddenKey, {
             expiresIn: "24h",
         });
         res.json({ message: "Logged in successfully", token });
@@ -147,7 +148,7 @@ router.get("/car/:id", auth_1.authentication, (req, res) => __awaiter(void 0, vo
     }
 }));
 // RENT A CAR
-router.post("/cars/:id", auth_1.authentication, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post("/rent-car/:id", auth_1.authentication, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { startDate, endDate, status } = req.body;
     const id = parseInt(req.params.id);
     const car = yield db_config_1.default.model.findUnique({
@@ -165,7 +166,7 @@ router.post("/cars/:id", auth_1.authentication, (req, res) => __awaiter(void 0, 
         if (user) {
             const carID = car.id;
             const userID = user.id;
-            yield db_config_1.default.rentedCar.create({
+            const rentedCar = yield db_config_1.default.rentedCar.create({
                 data: {
                     carId: carID,
                     rentedtoId: userID,
@@ -174,7 +175,11 @@ router.post("/cars/:id", auth_1.authentication, (req, res) => __awaiter(void 0, 
                     status: status,
                 },
             });
-            res.json({ message: "Car Rented successfully" });
+            const rentedCarID = rentedCar.id;
+            const token = jsonwebtoken_1.default.sign({ id: rentedCarID }, process.env.hiddenKey, {
+                expiresIn: "24h",
+            });
+            res.json({ message: "Car Rented successfully", token });
         }
         else {
             res.status(403).json({ message: "User not found" });
@@ -212,7 +217,11 @@ router.get("/rentedCars", auth_1.authentication, (req, res) => __awaiter(void 0,
             email: req.user.email,
         },
         include: {
-            onRent: true,
+            onRent: {
+                where: {
+                    status: true,
+                },
+            },
         },
     });
     if (user) {

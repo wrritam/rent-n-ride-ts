@@ -22,7 +22,7 @@ router.post("/signup", async (req, res) => {
       },
     });
     const token = jwt.sign(
-      { email, role: "user" },
+      { email, role: "user", name },
       process.env.hiddenKey as string,
       {
         expiresIn: "1h",
@@ -43,8 +43,9 @@ router.post("/login", async (req, res) => {
     },
   });
   if (user) {
+    const name = user.name;
     const token = jwt.sign(
-      { email, role: "user" },
+      { email, role: "user", name },
       process.env.hiddenKey as string,
       {
         expiresIn: "24h",
@@ -153,7 +154,7 @@ router.get("/car/:id", authentication, async (req, res) => {
 
 // RENT A CAR
 
-router.post("/cars/:id", authentication, async (req, res) => {
+router.post("/rent-car/:id", authentication, async (req, res) => {
   const { startDate, endDate, status } = req.body;
   const id = parseInt(req.params.id);
   const car = await prisma.model.findUnique({
@@ -171,7 +172,7 @@ router.post("/cars/:id", authentication, async (req, res) => {
     if (user) {
       const carID = car.id;
       const userID = user.id;
-      await prisma.rentedCar.create({
+      const rentedCar = await prisma.rentedCar.create({
         data: {
           carId: carID,
           rentedtoId: userID,
@@ -180,7 +181,15 @@ router.post("/cars/:id", authentication, async (req, res) => {
           status: status,
         },
       });
-      res.json({ message: "Car Rented successfully" });
+      const rentedCarID = rentedCar.id;
+      const token = jwt.sign(
+        { id: rentedCarID },
+        process.env.hiddenKey as string,
+        {
+          expiresIn: "24h",
+        }
+      );
+      res.json({ message: "Car Rented successfully", token });
     } else {
       res.status(403).json({ message: "User not found" });
     }
@@ -193,9 +202,7 @@ router.post("/cars/:id", authentication, async (req, res) => {
 
 router.put("/statusCheck/:id", authentication, async (req, res) => {
   const id = parseInt(req.params.id);
-
   const { status } = req.body;
-
   const targetCar = await prisma.rentedCar.findUnique({
     where: { id: id },
   });
@@ -220,7 +227,11 @@ router.get("/rentedCars", authentication, async (req, res) => {
       email: req.user.email,
     },
     include: {
-      onRent: true,
+      onRent: {
+        where: {
+          status: true,
+        },
+      },
     },
   });
   if (user) {
