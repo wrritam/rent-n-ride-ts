@@ -74,7 +74,7 @@ router.post("/forgotPassword", (req, res) => __awaiter(void 0, void 0, void 0, f
             id: user.id,
         };
         const token = jsonwebtoken_1.default.sign(payload, secret, { expiresIn: "15m" });
-        const modifiedToken = token.replace(/\./g, "_");
+        const modifiedToken = token.replace(/\%/g, "_");
         const link = `https://rent-ride-three.vercel.app/user/reset-password/${user.id}/${modifiedToken}`;
         //sendMail(email, "Reset Password", link);
         res.send((0, sendMail_1.sendMail)(email, "Reset Password", link));
@@ -87,7 +87,7 @@ router.post("/forgotPassword", (req, res) => __awaiter(void 0, void 0, void 0, f
 router.post("/resetPassword/:id/:modifiedToken", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id, modifiedToken } = req.params;
     const { password, confirmPassword } = req.body;
-    const originalToken = modifiedToken.replace(/_/g, ".");
+    const originalToken = modifiedToken.replace(/%/g, ".");
     const user = yield db_config_1.default.user.findUnique({
         where: {
             id: parseInt(id),
