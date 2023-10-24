@@ -75,7 +75,7 @@ router.post("/forgotPassword", async (req, res) => {
 
     const token = jwt.sign(payload, secret, { expiresIn: "15m" });
 
-    const modifiedToken = token.replace(/./g, "$");
+    const modifiedToken = token.replace(/\./g, "$");
 
     const link = `https://rent-ride-three.vercel.app/user/reset-password/${user.id}/${modifiedToken}`;
     res.send(sendMail(email, "Reset Password", link));
