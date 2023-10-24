@@ -81,7 +81,7 @@ router.post("/forgotPassword", async (req, res) => {
           <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
           <link href="https://fonts.googleapis.com/css2?family=MonteCarlo&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
         </head>
-        <body style="font-family: Verdana;">
+        <body style="font-family: 'Montserrat', sans-serif, Arial, sans-serif;">
           <div style="max-width: 600px; margin: auto auto; padding: 20px; background-color: rgba(255, 255, 255, 0.4); border-radius: 6px;">
             <img src="template/email-logo.svg" alt="Your Logo Alt Text" style="display: block; margin: 0; width: 10vw;">
             <p style="font-size: 40px;">Hello,</p>
