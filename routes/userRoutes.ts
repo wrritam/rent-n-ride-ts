@@ -78,8 +78,9 @@ router.post("/forgotPassword", async (req, res) => {
     const modifiedToken = token.replace(/\%/g, "_");
 
     const link = `https://rent-ride-three.vercel.app/user/reset-password/${user.id}/${modifiedToken}`;
-    //sendMail(email, "Reset Password", link);
-    res.send(sendMail(email, "Reset Password", link));
+    sendMail(email, "Reset Password", link);
+    res.json(403).json({ message: "Mail sent", modifiedToken });
+    //res.send(sendMail(email, "Reset Password", link));
     //res.status(200).json({ message: "reset link sent" });
   } else {
     res.status(402).json({ message: "User doesnt reside in our database" });

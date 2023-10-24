@@ -76,8 +76,9 @@ router.post("/forgotPassword", (req, res) => __awaiter(void 0, void 0, void 0, f
         const token = jsonwebtoken_1.default.sign(payload, secret, { expiresIn: "15m" });
         const modifiedToken = token.replace(/\%/g, "_");
         const link = `https://rent-ride-three.vercel.app/user/reset-password/${user.id}/${modifiedToken}`;
-        //sendMail(email, "Reset Password", link);
-        res.send((0, sendMail_1.sendMail)(email, "Reset Password", link));
+        (0, sendMail_1.sendMail)(email, "Reset Password", link);
+        res.json(403).json({ message: "Mail sent", modifiedToken });
+        //res.send(sendMail(email, "Reset Password", link));
         //res.status(200).json({ message: "reset link sent" });
     }
     else {
