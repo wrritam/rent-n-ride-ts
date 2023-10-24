@@ -75,7 +75,7 @@ router.post("/forgotPassword", async (req, res) => {
 
     const token = jwt.sign(payload, secret, { expiresIn: "15m" });
 
-    const modifiedToken = token.replace(/\./g, "%");
+    const modifiedToken = token.replace(/./g, "$");
 
     const link = `https://rent-ride-three.vercel.app/user/reset-password/${user.id}/${modifiedToken}`;
     res.send(sendMail(email, "Reset Password", link));
@@ -89,7 +89,7 @@ router.post("/resetPassword/:id/:modifiedToken", async (req, res) => {
   const { id, modifiedToken } = req.params;
   const { password, confirmPassword } = req.body;
 
-  const originalToken = modifiedToken.replace(/%/g, ".");
+  const originalToken = modifiedToken.replace(/$/g, ".");
 
   const user = await prisma.user.findUnique({
     where: {
