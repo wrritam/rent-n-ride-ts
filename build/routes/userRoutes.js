@@ -59,7 +59,6 @@ router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         res.status(403).json({ message: "Invalid email or password" });
     }
 }));
-// EXTENDED AUTHENTICATION THROUGH NODEMAILER AND MAGICLINK
 router.post("/forgotPassword", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email } = req.body;
     const user = yield db_config_1.default.user.findUnique({
@@ -74,20 +73,39 @@ router.post("/forgotPassword", (req, res) => __awaiter(void 0, void 0, void 0, f
             id: user.id,
         };
         const token = jsonwebtoken_1.default.sign(payload, secret, { expiresIn: "15m" });
-        const modifiedToken = token.replace(/\./g, "_");
-        const link = `https://rent-ride-three.vercel.app/user/reset-password/${user.id}/${modifiedToken}`;
+        const modifiedToken = token.replace(/\./g, '&');
+        const content = `
+      <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="utf-8">
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+          <link href="https://fonts.googleapis.com/css2?family=MonteCarlo&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+        </head>
+        <body style="font-family: Verdana;">
+          <div style="max-width: 600px; margin: auto auto; padding: 20px; background-color: rgba(255, 255, 255, 0.4); border-radius: 6px;">
+            <img src="template/email-logo.svg" alt="Your Logo Alt Text" style="display: block; margin: 0; width: 10vw;">
+            <p style="font-size: 40px;">Hello,</p>
+            <p style="margin: 5px 0; padding: 0;">Please click the following link to reset your password:</p>
+            <a href="http://localhost:3000/user/reset-password/${user.id}/${modifiedToken}" style="text-align: center; display: block; margin: 10px auto; padding: 10px 20px; background-color: rgb(16, 185, 129); color: #fff; text-decoration: none; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s ease;">Reset Password</a>
+          </div>
+        </body>
+      </html>`;
         //sendMail(email, "Reset Password", link);
-        res.send((0, sendMail_1.sendMail)(email, "Reset Password", link));
+        res.send((0, sendMail_1.sendMail)(email, "Reset Password", content));
         //res.status(200).json({ message: "reset link sent" });
     }
     else {
         res.status(402).json({ message: "User doesnt reside in our database" });
     }
 }));
-router.post("/resetPassword/:id/:modifiedToken", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id, modifiedToken } = req.params;
+router.post("/resetPassword/:id/:token", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id, token } = req.params;
     const { password, confirmPassword } = req.body;
-    const originalToken = modifiedToken.replace(/_/g, ".");
+    console.log(token);
+    const originalToken = token.replace(/\&/g, '.');
+    console.log(originalToken);
     const user = yield db_config_1.default.user.findUnique({
         where: {
             id: parseInt(id),
