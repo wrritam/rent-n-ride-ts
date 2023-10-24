@@ -56,6 +56,8 @@ router.post("/login", async (req, res) => {
   }
 });
 
+// EXTENDED AUTHENTICATION THROUGH NODEMAILER AND MAGICLINK
+
 router.post("/forgotPassword", async (req, res) => {
   const { email } = req.body;
   const user = await prisma.user.findUnique({
@@ -84,9 +86,11 @@ router.post("/forgotPassword", async (req, res) => {
   }
 });
 
-router.post("/resetPassword/:id/:token", async (req, res) => {
-  const { id, token } = req.params;
+router.post("/resetPassword/:id/:modifiedToken", async (req, res) => {
+  const { id, modifiedToken } = req.params;
   const { password, confirmPassword } = req.body;
+
+  const originalToken = modifiedToken.replace(/_/g, ".");
 
   const user = await prisma.user.findUnique({
     where: {
@@ -97,7 +101,7 @@ router.post("/resetPassword/:id/:token", async (req, res) => {
   if (user) {
     const secret = process.env.hiddenKey + user.password;
     try {
-      const payload = jwt.verify(token, secret);
+      const payload = jwt.verify(originalToken, secret);
       if (password === confirmPassword) {
         await prisma.user.update({
           where: {

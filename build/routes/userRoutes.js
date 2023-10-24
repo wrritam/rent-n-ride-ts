@@ -59,6 +59,7 @@ router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         res.status(403).json({ message: "Invalid email or password" });
     }
 }));
+// EXTENDED AUTHENTICATION THROUGH NODEMAILER AND MAGICLINK
 router.post("/forgotPassword", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email } = req.body;
     const user = yield db_config_1.default.user.findUnique({
@@ -83,9 +84,10 @@ router.post("/forgotPassword", (req, res) => __awaiter(void 0, void 0, void 0, f
         res.status(402).json({ message: "User doesnt reside in our database" });
     }
 }));
-router.post("/resetPassword/:id/:token", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id, token } = req.params;
+router.post("/resetPassword/:id/:modifiedToken", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id, modifiedToken } = req.params;
     const { password, confirmPassword } = req.body;
+    const originalToken = modifiedToken.replace(/_/g, ".");
     const user = yield db_config_1.default.user.findUnique({
         where: {
             id: parseInt(id),
@@ -94,7 +96,7 @@ router.post("/resetPassword/:id/:token", (req, res) => __awaiter(void 0, void 0,
     if (user) {
         const secret = process.env.hiddenKey + user.password;
         try {
-            const payload = jsonwebtoken_1.default.verify(token, secret);
+            const payload = jsonwebtoken_1.default.verify(originalToken, secret);
             if (password === confirmPassword) {
                 yield db_config_1.default.user.update({
                     where: {
