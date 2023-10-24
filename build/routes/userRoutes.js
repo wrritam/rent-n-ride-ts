@@ -18,7 +18,6 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const sendMail_1 = require("../helper/sendMail");
 const auth_1 = require("../middlewares/auth");
 const db_config_1 = __importDefault(require("../DB/db.config"));
-const rtg = require("random-token-generator");
 //USER SIGNUP
 router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { name, email, password } = req.body;
@@ -68,15 +67,14 @@ router.post("/forgotPassword", (req, res) => __awaiter(void 0, void 0, void 0, f
         },
     });
     if (user) {
-        const rtgKey = rtg.generateKey({
-            len: 8,
-            string: true,
-            strong: false,
-            retry: false,
-        });
-        const secretKey = rtgKey;
-        const token = jsonwebtoken_1.default.sign(email, secretKey, { expiresIn: "15m" });
-        const link = `https://rent-ride-three.vercel.app/user/reset-password/${user.id}/${token}`;
+        const secret = process.env.hiddenKey + user.password;
+        const payload = {
+            email: user.email,
+            id: user.id,
+        };
+        const token = jsonwebtoken_1.default.sign(payload, secret, { expiresIn: "15m" });
+        const modifiedToken = token.replace(/\./g, "_");
+        const link = `https://rent-ride-three.vercel.app/user/reset-password/${user.id}/${modifiedToken}`;
         //sendMail(email, "Reset Password", link);
         res.send((0, sendMail_1.sendMail)(email, "Reset Password", link));
         //res.status(200).json({ message: "reset link sent" });

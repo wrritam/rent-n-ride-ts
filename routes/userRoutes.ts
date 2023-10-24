@@ -5,8 +5,6 @@ import { sendMail } from "../helper/sendMail";
 import { authentication } from "../middlewares/auth";
 import prisma from "../DB/db.config";
 
-const rtg = require("random-token-generator");
-
 //USER SIGNUP
 
 router.post("/signup", async (req, res) => {
@@ -66,17 +64,18 @@ router.post("/forgotPassword", async (req, res) => {
     },
   });
   if (user) {
-    const rtgKey = rtg.generateKey({
-      len: 8,
-      string: true,
-      strong: false,
-      retry: false,
-    });
+    const secret = process.env.hiddenKey + user.password;
 
-    const secretKey = rtgKey;
+    const payload = {
+      email: user.email,
+      id: user.id,
+    };
 
-    const token = jwt.sign(email, secretKey, { expiresIn: "15m" });
-    const link = `https://rent-ride-three.vercel.app/user/reset-password/${user.id}/${token}`;
+    const token = jwt.sign(payload, secret, { expiresIn: "15m" });
+
+    const modifiedToken = token.replace(/\./g, "_");
+
+    const link = `https://rent-ride-three.vercel.app/user/reset-password/${user.id}/${modifiedToken}`;
     //sendMail(email, "Reset Password", link);
     res.send(sendMail(email, "Reset Password", link));
     //res.status(200).json({ message: "reset link sent" });
