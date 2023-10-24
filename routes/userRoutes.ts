@@ -86,7 +86,7 @@ router.post("/forgotPassword", async (req, res) => {
             <img src="template/email-logo.svg" alt="Your Logo Alt Text" style="display: block; margin: 0; width: 10vw;">
             <p style="font-size: 40px;">Hello,</p>
             <p style="margin: 5px 0; padding: 0;">Please click the following link to reset your password:</p>
-            <a href="http://localhost:3000/user/reset-password/${user.id}/${modifiedToken}" style="text-align: center; display: block; margin: 10px auto; padding: 10px 20px; background-color: rgb(16, 185, 129); color: #fff; text-decoration: none; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s ease;">Reset Password</a>
+            <a href="https://rent-ride-three.vercel.app/user/reset-password/${user.id}/${modifiedToken}" style="text-align: center; display: block; margin: 10px auto; padding: 10px 20px; background-color: rgb(16, 185, 129); color: #fff; text-decoration: none; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s ease;">Reset Password</a>
           </div>
         </body>
       </html>`;
