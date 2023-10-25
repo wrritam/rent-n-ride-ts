@@ -10,4 +10,4 @@ services:
       - /usr/src/app/node_modules
     ports:
       - 4000:4000
-    command: npm run start
+    command: npm run dev

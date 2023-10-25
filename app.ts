@@ -4,7 +4,7 @@ import userRoutes from "./routes/userRoutes";
 import adminRoutes from "./routes/adminRoutes";
 
 const app = express();
-const port = 4000;
+const port = process.env.PORT || 4000;
 
 var cors = require("cors");
 app.use(cors());

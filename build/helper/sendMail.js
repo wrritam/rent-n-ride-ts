@@ -21,12 +21,12 @@ const sendMail = (email, mailSubject, content) => __awaiter(void 0, void 0, void
             port: 465,
             secure: true,
             auth: {
-                user: "www.anuragniall@gmail.com",
+                user: "therentride@gmail.com",
                 pass: process.env.password,
             },
         });
         const mailOptions = {
-            from: "www.anuragniall@gmail.com",
+            from: "therentride@gmail.com",
             to: email,
             subject: mailSubject,
             html: content,
